@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <!-- Include Bootstrap CSS (from a CDN) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- Header -->
+<nav class="navbar navbar-dark bg-dark">
+    <span class="navbar-brand mb-0 h1">Music Streaming Application</span>
+</nav>
+
+<!-- Main Content -->
+<div id="app" class="container text-center py-5">
+    <h2>User Login</h2>
+    <br>
+    <form @submit.prevent="login" class="login-form">
+        <div class="form-group">
+            <input v-model="formData.username" type="text" class="form-control col-md-6 mx-auto" placeholder="Username" required/>
+        </div>
+        <div class="form-group">
+            <input v-model="formData.password" type="password" class="form-control col-md-6 mx-auto" placeholder="Password" required/>
+        </div>
+        <div class="mt-4">
+            <button type="submit" class="btn btn-lg btn-success">Login</button>
+        </div>
+    </form>
+    <p class="mt-3">Not a user? <a href="register">Register here</a></p>
+</div>
+
+<!-- Include Vue.js and Bootstrap JS (from a CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                formData: {
+                    username: '',
+                    password: '',
+                    user_type:''
+                }
+            }
+        },
+        methods: {
+            async login() {
+                try {
+                    const response = await fetch('/api/user_login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert(data.message); // Display success message
+                      
+                        localStorage.setItem("username", this.formData.username);
+                        localStorage.setItem("user_type", data.user_type);
+                        base_url=window.location.href.split("/")[0]+"//"+window.location.href.split("/")[2]
+                        localStorage.setItem('access_token', data.access_token);
+                        redirectUrl = base_url+"/user_dashboard"
+                        window.location.href = redirectUrl;
+                    } else {
+                        alert(data.message); // Display error message
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.'); // Display generic error message
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
